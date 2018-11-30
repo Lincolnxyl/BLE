@@ -1,0 +1,832 @@
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m0
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"debug.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.ShowValue,"ax",%progbits
+  20              		.align	2
+  21              		.global	ShowValue
+  22              		.code	16
+  23              		.thumb_func
+  24              		.type	ShowValue, %function
+  25              	ShowValue:
+  26              	.LFB36:
+  27              		.file 1 "debug.c"
+   1:debug.c       **** /*******************************************************************************
+   2:debug.c       **** * File Name: debug.c
+   3:debug.c       **** *
+   4:debug.c       **** * Version: 1.0
+   5:debug.c       **** *
+   6:debug.c       **** * Description:
+   7:debug.c       **** *  This file contains functions for printf functionality.
+   8:debug.c       **** *
+   9:debug.c       **** * Hardware Dependency:
+  10:debug.c       **** *  CY8CKIT-042 BLE
+  11:debug.c       **** * 
+  12:debug.c       **** ********************************************************************************
+  13:debug.c       **** * Copyright 2016, Cypress Semiconductor Corporation.  All rights reserved.
+  14:debug.c       **** * You may use this file only in accordance with the license, terms, conditions,
+  15:debug.c       **** * disclaimers, and limitations in the end user license agreement accompanying
+  16:debug.c       **** * the software package with which this file was provided.
+  17:debug.c       **** *******************************************************************************/
+  18:debug.c       **** 
+  19:debug.c       **** 
+  20:debug.c       **** #include "common.h"
+  21:debug.c       **** 
+  22:debug.c       **** #if (DEBUG_UART_ENABLED == ENABLED)
+  23:debug.c       **** 
+  24:debug.c       **** #if defined(__ARMCC_VERSION)
+  25:debug.c       ****     
+  26:debug.c       **** /* For MDK/RVDS compiler revise fputc function for printf functionality */
+  27:debug.c       **** struct __FILE 
+  28:debug.c       **** {
+  29:debug.c       ****     int handle;  
+  30:debug.c       **** };
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 2
+
+
+  31:debug.c       **** 
+  32:debug.c       **** enum 
+  33:debug.c       **** {
+  34:debug.c       ****     STDIN_HANDLE,
+  35:debug.c       ****     STDOUT_HANDLE,
+  36:debug.c       ****     STDERR_HANDLE
+  37:debug.c       **** };
+  38:debug.c       **** 
+  39:debug.c       **** FILE __stdin = {STDIN_HANDLE};
+  40:debug.c       **** FILE __stdout = {STDOUT_HANDLE};
+  41:debug.c       **** FILE __stderr = {STDERR_HANDLE};
+  42:debug.c       **** 
+  43:debug.c       **** int fputc(int ch, FILE *file) 
+  44:debug.c       **** {
+  45:debug.c       ****     int ret = EOF;
+  46:debug.c       **** 
+  47:debug.c       ****     switch( file->handle )
+  48:debug.c       ****     {
+  49:debug.c       ****         case STDOUT_HANDLE:
+  50:debug.c       ****             UART_DEB_UartPutChar(ch);
+  51:debug.c       ****             ret = ch ;
+  52:debug.c       ****             break ;
+  53:debug.c       **** 
+  54:debug.c       ****         case STDERR_HANDLE:
+  55:debug.c       ****             ret = ch ;
+  56:debug.c       ****             break ;
+  57:debug.c       **** 
+  58:debug.c       ****         default:
+  59:debug.c       ****             file = file;
+  60:debug.c       ****             break ;
+  61:debug.c       ****     }
+  62:debug.c       ****     return ret ;
+  63:debug.c       **** }
+  64:debug.c       **** 
+  65:debug.c       **** #elif defined (__ICCARM__)      /* IAR */
+  66:debug.c       **** 
+  67:debug.c       **** /* For IAR compiler revise __write() function for printf functionality */
+  68:debug.c       **** size_t __write(int handle, const unsigned char * buffer, size_t size)
+  69:debug.c       **** {
+  70:debug.c       ****     size_t nChars = 0;
+  71:debug.c       **** 
+  72:debug.c       ****     if (buffer == 0)
+  73:debug.c       ****     {
+  74:debug.c       ****         /*
+  75:debug.c       ****          * This means that we should flush internal buffers.  Since we
+  76:debug.c       ****          * don't we just return.  (Remember, "handle" == -1 means that all
+  77:debug.c       ****          * handles should be flushed.)
+  78:debug.c       ****          */
+  79:debug.c       ****         return (0);
+  80:debug.c       ****     }
+  81:debug.c       **** 
+  82:debug.c       ****     for (/* Empty */; size != 0; --size)
+  83:debug.c       ****     {
+  84:debug.c       ****         UART_DEB_UartPutChar(*buffer++);
+  85:debug.c       ****         ++nChars;
+  86:debug.c       ****     }
+  87:debug.c       **** 
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 3
+
+
+  88:debug.c       ****     return (nChars);
+  89:debug.c       **** }
+  90:debug.c       **** 
+  91:debug.c       **** #else  /* (__GNUC__)  GCC */
+  92:debug.c       **** 
+  93:debug.c       **** /* For GCC compiler revise _write() function for printf functionality */
+  94:debug.c       **** int _write(int file, char *ptr, int len)
+  95:debug.c       **** {
+  96:debug.c       ****     int i;
+  97:debug.c       ****     file = file;
+  98:debug.c       ****     for (i = 0; i < len; i++)
+  99:debug.c       ****     {
+ 100:debug.c       ****         UART_DEB_UartPutChar(*ptr++);
+ 101:debug.c       ****     }
+ 102:debug.c       ****     return len;
+ 103:debug.c       **** }
+ 104:debug.c       **** 
+ 105:debug.c       **** 
+ 106:debug.c       **** #endif  /* (__ARMCC_VERSION) */   
+ 107:debug.c       **** 
+ 108:debug.c       **** #endif /* DEBUG_UART_ENABLED == ENABLED */
+ 109:debug.c       **** 
+ 110:debug.c       **** 
+ 111:debug.c       **** void ShowValue(CYBLE_GATT_VALUE_T *value)
+ 112:debug.c       **** {
+  28              		.loc 1 112 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+ 113:debug.c       ****     int16 i;
+ 114:debug.c       ****     
+ 115:debug.c       ****     for(i = 0; i < value->len; i++)
+  34              		.loc 1 115 0
+  35 0000 0023     		movs	r3, #0
+  36 0002 01E0     		b	.L2
+  37              	.LVL1:
+  38              	.L3:
+  39              		.loc 1 115 0 is_stmt 0 discriminator 3
+  40 0004 0133     		adds	r3, r3, #1
+  41              	.LVL2:
+  42 0006 1BB2     		sxth	r3, r3
+  43              	.LVL3:
+  44              	.L2:
+  45              		.loc 1 115 0 discriminator 1
+  46 0008 8288     		ldrh	r2, [r0, #4]
+  47 000a 9342     		cmp	r3, r2
+  48 000c FADB     		blt	.L3
+ 116:debug.c       ****     {
+ 117:debug.c       ****         DBG_PRINTF("%2.2x ", value->val[i]);
+ 118:debug.c       ****     }
+ 119:debug.c       ****     DBG_PRINTF("\r\n");
+ 120:debug.c       **** }
+  49              		.loc 1 120 0 is_stmt 1
+  50              		@ sp needed
+  51 000e 7047     		bx	lr
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 4
+
+
+  52              		.cfi_endproc
+  53              	.LFE36:
+  54              		.size	ShowValue, .-ShowValue
+  55              		.section	.text.Set16ByPtr,"ax",%progbits
+  56              		.align	2
+  57              		.global	Set16ByPtr
+  58              		.code	16
+  59              		.thumb_func
+  60              		.type	Set16ByPtr, %function
+  61              	Set16ByPtr:
+  62              	.LFB37:
+ 121:debug.c       **** 
+ 122:debug.c       **** 
+ 123:debug.c       **** void Set16ByPtr(uint8 ptr[], uint32 value)
+ 124:debug.c       **** {
+  63              		.loc 1 124 0
+  64              		.cfi_startproc
+  65              		@ args = 0, pretend = 0, frame = 0
+  66              		@ frame_needed = 0, uses_anonymous_args = 0
+  67              		@ link register save eliminated.
+  68              	.LVL4:
+ 125:debug.c       ****     ptr[0u] = (uint8) value;
+  69              		.loc 1 125 0
+  70 0000 0170     		strb	r1, [r0]
+ 126:debug.c       ****     ptr[1u] = (uint8) (value >> 8u);    
+  71              		.loc 1 126 0
+  72 0002 090A     		lsrs	r1, r1, #8
+  73              	.LVL5:
+  74 0004 4170     		strb	r1, [r0, #1]
+ 127:debug.c       **** }
+  75              		.loc 1 127 0
+  76              		@ sp needed
+  77 0006 7047     		bx	lr
+  78              		.cfi_endproc
+  79              	.LFE37:
+  80              		.size	Set16ByPtr, .-Set16ByPtr
+  81              		.text
+  82              	.Letext0:
+  83              		.file 2 "Generated_Source\\PSoC4/cytypes.h"
+  84              		.file 3 "Generated_Source\\PSoC4/BLE_StackGatt.h"
+  85              		.section	.debug_info,"",%progbits
+  86              	.Ldebug_info0:
+  87 0000 62010000 		.4byte	0x162
+  88 0004 0400     		.2byte	0x4
+  89 0006 00000000 		.4byte	.Ldebug_abbrev0
+  90 000a 04       		.byte	0x4
+  91 000b 01       		.uleb128 0x1
+  92 000c FB000000 		.4byte	.LASF21
+  93 0010 0C       		.byte	0xc
+  94 0011 B9000000 		.4byte	.LASF22
+  95 0015 71000000 		.4byte	.LASF23
+  96 0019 00000000 		.4byte	.Ldebug_ranges0+0
+  97 001d 00000000 		.4byte	0
+  98 0021 00000000 		.4byte	.Ldebug_line0
+  99 0025 02       		.uleb128 0x2
+ 100 0026 01       		.byte	0x1
+ 101 0027 06       		.byte	0x6
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 5
+
+
+ 102 0028 C5010000 		.4byte	.LASF0
+ 103 002c 02       		.uleb128 0x2
+ 104 002d 01       		.byte	0x1
+ 105 002e 08       		.byte	0x8
+ 106 002f 4B000000 		.4byte	.LASF1
+ 107 0033 02       		.uleb128 0x2
+ 108 0034 02       		.byte	0x2
+ 109 0035 05       		.byte	0x5
+ 110 0036 A0010000 		.4byte	.LASF2
+ 111 003a 02       		.uleb128 0x2
+ 112 003b 02       		.byte	0x2
+ 113 003c 07       		.byte	0x7
+ 114 003d 06000000 		.4byte	.LASF3
+ 115 0041 02       		.uleb128 0x2
+ 116 0042 04       		.byte	0x4
+ 117 0043 05       		.byte	0x5
+ 118 0044 B0010000 		.4byte	.LASF4
+ 119 0048 02       		.uleb128 0x2
+ 120 0049 04       		.byte	0x4
+ 121 004a 07       		.byte	0x7
+ 122 004b 5F000000 		.4byte	.LASF5
+ 123 004f 02       		.uleb128 0x2
+ 124 0050 08       		.byte	0x8
+ 125 0051 05       		.byte	0x5
+ 126 0052 92010000 		.4byte	.LASF6
+ 127 0056 02       		.uleb128 0x2
+ 128 0057 08       		.byte	0x8
+ 129 0058 07       		.byte	0x7
+ 130 0059 29000000 		.4byte	.LASF7
+ 131 005d 03       		.uleb128 0x3
+ 132 005e 04       		.byte	0x4
+ 133 005f 05       		.byte	0x5
+ 134 0060 696E7400 		.ascii	"int\000"
+ 135 0064 02       		.uleb128 0x2
+ 136 0065 04       		.byte	0x4
+ 137 0066 07       		.byte	0x7
+ 138 0067 E9000000 		.4byte	.LASF8
+ 139 006b 04       		.uleb128 0x4
+ 140 006c AA010000 		.4byte	.LASF9
+ 141 0070 02       		.byte	0x2
+ 142 0071 E401     		.2byte	0x1e4
+ 143 0073 2C000000 		.4byte	0x2c
+ 144 0077 04       		.uleb128 0x4
+ 145 0078 C8000000 		.4byte	.LASF10
+ 146 007c 02       		.byte	0x2
+ 147 007d E501     		.2byte	0x1e5
+ 148 007f 3A000000 		.4byte	0x3a
+ 149 0083 04       		.uleb128 0x4
+ 150 0084 CF000000 		.4byte	.LASF11
+ 151 0088 02       		.byte	0x2
+ 152 0089 E601     		.2byte	0x1e6
+ 153 008b 48000000 		.4byte	0x48
+ 154 008f 04       		.uleb128 0x4
+ 155 0090 59000000 		.4byte	.LASF12
+ 156 0094 02       		.byte	0x2
+ 157 0095 E801     		.2byte	0x1e8
+ 158 0097 33000000 		.4byte	0x33
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 6
+
+
+ 159 009b 02       		.uleb128 0x2
+ 160 009c 04       		.byte	0x4
+ 161 009d 04       		.byte	0x4
+ 162 009e 23000000 		.4byte	.LASF13
+ 163 00a2 02       		.uleb128 0x2
+ 164 00a3 08       		.byte	0x8
+ 165 00a4 04       		.byte	0x4
+ 166 00a5 C1000000 		.4byte	.LASF14
+ 167 00a9 02       		.uleb128 0x2
+ 168 00aa 01       		.byte	0x1
+ 169 00ab 08       		.byte	0x8
+ 170 00ac F6000000 		.4byte	.LASF15
+ 171 00b0 02       		.uleb128 0x2
+ 172 00b1 08       		.byte	0x8
+ 173 00b2 04       		.byte	0x4
+ 174 00b3 B9010000 		.4byte	.LASF16
+ 175 00b7 02       		.uleb128 0x2
+ 176 00b8 04       		.byte	0x4
+ 177 00b9 07       		.byte	0x7
+ 178 00ba 89010000 		.4byte	.LASF17
+ 179 00be 05       		.uleb128 0x5
+ 180 00bf 04       		.byte	0x4
+ 181 00c0 6B000000 		.4byte	0x6b
+ 182 00c4 06       		.uleb128 0x6
+ 183 00c5 08       		.byte	0x8
+ 184 00c6 03       		.byte	0x3
+ 185 00c7 BE01     		.2byte	0x1be
+ 186 00c9 F5000000 		.4byte	0xf5
+ 187 00cd 07       		.uleb128 0x7
+ 188 00ce 76616C00 		.ascii	"val\000"
+ 189 00d2 03       		.byte	0x3
+ 190 00d3 C101     		.2byte	0x1c1
+ 191 00d5 BE000000 		.4byte	0xbe
+ 192 00d9 00       		.byte	0
+ 193 00da 07       		.uleb128 0x7
+ 194 00db 6C656E00 		.ascii	"len\000"
+ 195 00df 03       		.byte	0x3
+ 196 00e0 C401     		.2byte	0x1c4
+ 197 00e2 77000000 		.4byte	0x77
+ 198 00e6 04       		.byte	0x4
+ 199 00e7 08       		.uleb128 0x8
+ 200 00e8 D1010000 		.4byte	.LASF18
+ 201 00ec 03       		.byte	0x3
+ 202 00ed CB01     		.2byte	0x1cb
+ 203 00ef 77000000 		.4byte	0x77
+ 204 00f3 06       		.byte	0x6
+ 205 00f4 00       		.byte	0
+ 206 00f5 04       		.uleb128 0x4
+ 207 00f6 D6000000 		.4byte	.LASF19
+ 208 00fa 03       		.byte	0x3
+ 209 00fb CD01     		.2byte	0x1cd
+ 210 00fd C4000000 		.4byte	0xc4
+ 211 0101 05       		.uleb128 0x5
+ 212 0102 04       		.byte	0x4
+ 213 0103 F5000000 		.4byte	0xf5
+ 214 0107 09       		.uleb128 0x9
+ 215 0108 19000000 		.4byte	.LASF24
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 7
+
+
+ 216 010c 01       		.byte	0x1
+ 217 010d 6F       		.byte	0x6f
+ 218 010e 00000000 		.4byte	.LFB36
+ 219 0112 10000000 		.4byte	.LFE36-.LFB36
+ 220 0116 01       		.uleb128 0x1
+ 221 0117 9C       		.byte	0x9c
+ 222 0118 37010000 		.4byte	0x137
+ 223 011c 0A       		.uleb128 0xa
+ 224 011d 00000000 		.4byte	.LASF20
+ 225 0121 01       		.byte	0x1
+ 226 0122 6F       		.byte	0x6f
+ 227 0123 01010000 		.4byte	0x101
+ 228 0127 01       		.uleb128 0x1
+ 229 0128 50       		.byte	0x50
+ 230 0129 0B       		.uleb128 0xb
+ 231 012a 6900     		.ascii	"i\000"
+ 232 012c 01       		.byte	0x1
+ 233 012d 71       		.byte	0x71
+ 234 012e 8F000000 		.4byte	0x8f
+ 235 0132 00000000 		.4byte	.LLST0
+ 236 0136 00       		.byte	0
+ 237 0137 0C       		.uleb128 0xc
+ 238 0138 40000000 		.4byte	.LASF25
+ 239 013c 01       		.byte	0x1
+ 240 013d 7B       		.byte	0x7b
+ 241 013e 00000000 		.4byte	.LFB37
+ 242 0142 08000000 		.4byte	.LFE37-.LFB37
+ 243 0146 01       		.uleb128 0x1
+ 244 0147 9C       		.byte	0x9c
+ 245 0148 0D       		.uleb128 0xd
+ 246 0149 70747200 		.ascii	"ptr\000"
+ 247 014d 01       		.byte	0x1
+ 248 014e 7B       		.byte	0x7b
+ 249 014f BE000000 		.4byte	0xbe
+ 250 0153 01       		.uleb128 0x1
+ 251 0154 50       		.byte	0x50
+ 252 0155 0E       		.uleb128 0xe
+ 253 0156 00000000 		.4byte	.LASF20
+ 254 015a 01       		.byte	0x1
+ 255 015b 7B       		.byte	0x7b
+ 256 015c 83000000 		.4byte	0x83
+ 257 0160 2A000000 		.4byte	.LLST1
+ 258 0164 00       		.byte	0
+ 259 0165 00       		.byte	0
+ 260              		.section	.debug_abbrev,"",%progbits
+ 261              	.Ldebug_abbrev0:
+ 262 0000 01       		.uleb128 0x1
+ 263 0001 11       		.uleb128 0x11
+ 264 0002 01       		.byte	0x1
+ 265 0003 25       		.uleb128 0x25
+ 266 0004 0E       		.uleb128 0xe
+ 267 0005 13       		.uleb128 0x13
+ 268 0006 0B       		.uleb128 0xb
+ 269 0007 03       		.uleb128 0x3
+ 270 0008 0E       		.uleb128 0xe
+ 271 0009 1B       		.uleb128 0x1b
+ 272 000a 0E       		.uleb128 0xe
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 8
+
+
+ 273 000b 55       		.uleb128 0x55
+ 274 000c 17       		.uleb128 0x17
+ 275 000d 11       		.uleb128 0x11
+ 276 000e 01       		.uleb128 0x1
+ 277 000f 10       		.uleb128 0x10
+ 278 0010 17       		.uleb128 0x17
+ 279 0011 00       		.byte	0
+ 280 0012 00       		.byte	0
+ 281 0013 02       		.uleb128 0x2
+ 282 0014 24       		.uleb128 0x24
+ 283 0015 00       		.byte	0
+ 284 0016 0B       		.uleb128 0xb
+ 285 0017 0B       		.uleb128 0xb
+ 286 0018 3E       		.uleb128 0x3e
+ 287 0019 0B       		.uleb128 0xb
+ 288 001a 03       		.uleb128 0x3
+ 289 001b 0E       		.uleb128 0xe
+ 290 001c 00       		.byte	0
+ 291 001d 00       		.byte	0
+ 292 001e 03       		.uleb128 0x3
+ 293 001f 24       		.uleb128 0x24
+ 294 0020 00       		.byte	0
+ 295 0021 0B       		.uleb128 0xb
+ 296 0022 0B       		.uleb128 0xb
+ 297 0023 3E       		.uleb128 0x3e
+ 298 0024 0B       		.uleb128 0xb
+ 299 0025 03       		.uleb128 0x3
+ 300 0026 08       		.uleb128 0x8
+ 301 0027 00       		.byte	0
+ 302 0028 00       		.byte	0
+ 303 0029 04       		.uleb128 0x4
+ 304 002a 16       		.uleb128 0x16
+ 305 002b 00       		.byte	0
+ 306 002c 03       		.uleb128 0x3
+ 307 002d 0E       		.uleb128 0xe
+ 308 002e 3A       		.uleb128 0x3a
+ 309 002f 0B       		.uleb128 0xb
+ 310 0030 3B       		.uleb128 0x3b
+ 311 0031 05       		.uleb128 0x5
+ 312 0032 49       		.uleb128 0x49
+ 313 0033 13       		.uleb128 0x13
+ 314 0034 00       		.byte	0
+ 315 0035 00       		.byte	0
+ 316 0036 05       		.uleb128 0x5
+ 317 0037 0F       		.uleb128 0xf
+ 318 0038 00       		.byte	0
+ 319 0039 0B       		.uleb128 0xb
+ 320 003a 0B       		.uleb128 0xb
+ 321 003b 49       		.uleb128 0x49
+ 322 003c 13       		.uleb128 0x13
+ 323 003d 00       		.byte	0
+ 324 003e 00       		.byte	0
+ 325 003f 06       		.uleb128 0x6
+ 326 0040 13       		.uleb128 0x13
+ 327 0041 01       		.byte	0x1
+ 328 0042 0B       		.uleb128 0xb
+ 329 0043 0B       		.uleb128 0xb
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 9
+
+
+ 330 0044 3A       		.uleb128 0x3a
+ 331 0045 0B       		.uleb128 0xb
+ 332 0046 3B       		.uleb128 0x3b
+ 333 0047 05       		.uleb128 0x5
+ 334 0048 01       		.uleb128 0x1
+ 335 0049 13       		.uleb128 0x13
+ 336 004a 00       		.byte	0
+ 337 004b 00       		.byte	0
+ 338 004c 07       		.uleb128 0x7
+ 339 004d 0D       		.uleb128 0xd
+ 340 004e 00       		.byte	0
+ 341 004f 03       		.uleb128 0x3
+ 342 0050 08       		.uleb128 0x8
+ 343 0051 3A       		.uleb128 0x3a
+ 344 0052 0B       		.uleb128 0xb
+ 345 0053 3B       		.uleb128 0x3b
+ 346 0054 05       		.uleb128 0x5
+ 347 0055 49       		.uleb128 0x49
+ 348 0056 13       		.uleb128 0x13
+ 349 0057 38       		.uleb128 0x38
+ 350 0058 0B       		.uleb128 0xb
+ 351 0059 00       		.byte	0
+ 352 005a 00       		.byte	0
+ 353 005b 08       		.uleb128 0x8
+ 354 005c 0D       		.uleb128 0xd
+ 355 005d 00       		.byte	0
+ 356 005e 03       		.uleb128 0x3
+ 357 005f 0E       		.uleb128 0xe
+ 358 0060 3A       		.uleb128 0x3a
+ 359 0061 0B       		.uleb128 0xb
+ 360 0062 3B       		.uleb128 0x3b
+ 361 0063 05       		.uleb128 0x5
+ 362 0064 49       		.uleb128 0x49
+ 363 0065 13       		.uleb128 0x13
+ 364 0066 38       		.uleb128 0x38
+ 365 0067 0B       		.uleb128 0xb
+ 366 0068 00       		.byte	0
+ 367 0069 00       		.byte	0
+ 368 006a 09       		.uleb128 0x9
+ 369 006b 2E       		.uleb128 0x2e
+ 370 006c 01       		.byte	0x1
+ 371 006d 3F       		.uleb128 0x3f
+ 372 006e 19       		.uleb128 0x19
+ 373 006f 03       		.uleb128 0x3
+ 374 0070 0E       		.uleb128 0xe
+ 375 0071 3A       		.uleb128 0x3a
+ 376 0072 0B       		.uleb128 0xb
+ 377 0073 3B       		.uleb128 0x3b
+ 378 0074 0B       		.uleb128 0xb
+ 379 0075 27       		.uleb128 0x27
+ 380 0076 19       		.uleb128 0x19
+ 381 0077 11       		.uleb128 0x11
+ 382 0078 01       		.uleb128 0x1
+ 383 0079 12       		.uleb128 0x12
+ 384 007a 06       		.uleb128 0x6
+ 385 007b 40       		.uleb128 0x40
+ 386 007c 18       		.uleb128 0x18
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 10
+
+
+ 387 007d 9742     		.uleb128 0x2117
+ 388 007f 19       		.uleb128 0x19
+ 389 0080 01       		.uleb128 0x1
+ 390 0081 13       		.uleb128 0x13
+ 391 0082 00       		.byte	0
+ 392 0083 00       		.byte	0
+ 393 0084 0A       		.uleb128 0xa
+ 394 0085 05       		.uleb128 0x5
+ 395 0086 00       		.byte	0
+ 396 0087 03       		.uleb128 0x3
+ 397 0088 0E       		.uleb128 0xe
+ 398 0089 3A       		.uleb128 0x3a
+ 399 008a 0B       		.uleb128 0xb
+ 400 008b 3B       		.uleb128 0x3b
+ 401 008c 0B       		.uleb128 0xb
+ 402 008d 49       		.uleb128 0x49
+ 403 008e 13       		.uleb128 0x13
+ 404 008f 02       		.uleb128 0x2
+ 405 0090 18       		.uleb128 0x18
+ 406 0091 00       		.byte	0
+ 407 0092 00       		.byte	0
+ 408 0093 0B       		.uleb128 0xb
+ 409 0094 34       		.uleb128 0x34
+ 410 0095 00       		.byte	0
+ 411 0096 03       		.uleb128 0x3
+ 412 0097 08       		.uleb128 0x8
+ 413 0098 3A       		.uleb128 0x3a
+ 414 0099 0B       		.uleb128 0xb
+ 415 009a 3B       		.uleb128 0x3b
+ 416 009b 0B       		.uleb128 0xb
+ 417 009c 49       		.uleb128 0x49
+ 418 009d 13       		.uleb128 0x13
+ 419 009e 02       		.uleb128 0x2
+ 420 009f 17       		.uleb128 0x17
+ 421 00a0 00       		.byte	0
+ 422 00a1 00       		.byte	0
+ 423 00a2 0C       		.uleb128 0xc
+ 424 00a3 2E       		.uleb128 0x2e
+ 425 00a4 01       		.byte	0x1
+ 426 00a5 3F       		.uleb128 0x3f
+ 427 00a6 19       		.uleb128 0x19
+ 428 00a7 03       		.uleb128 0x3
+ 429 00a8 0E       		.uleb128 0xe
+ 430 00a9 3A       		.uleb128 0x3a
+ 431 00aa 0B       		.uleb128 0xb
+ 432 00ab 3B       		.uleb128 0x3b
+ 433 00ac 0B       		.uleb128 0xb
+ 434 00ad 27       		.uleb128 0x27
+ 435 00ae 19       		.uleb128 0x19
+ 436 00af 11       		.uleb128 0x11
+ 437 00b0 01       		.uleb128 0x1
+ 438 00b1 12       		.uleb128 0x12
+ 439 00b2 06       		.uleb128 0x6
+ 440 00b3 40       		.uleb128 0x40
+ 441 00b4 18       		.uleb128 0x18
+ 442 00b5 9742     		.uleb128 0x2117
+ 443 00b7 19       		.uleb128 0x19
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 11
+
+
+ 444 00b8 00       		.byte	0
+ 445 00b9 00       		.byte	0
+ 446 00ba 0D       		.uleb128 0xd
+ 447 00bb 05       		.uleb128 0x5
+ 448 00bc 00       		.byte	0
+ 449 00bd 03       		.uleb128 0x3
+ 450 00be 08       		.uleb128 0x8
+ 451 00bf 3A       		.uleb128 0x3a
+ 452 00c0 0B       		.uleb128 0xb
+ 453 00c1 3B       		.uleb128 0x3b
+ 454 00c2 0B       		.uleb128 0xb
+ 455 00c3 49       		.uleb128 0x49
+ 456 00c4 13       		.uleb128 0x13
+ 457 00c5 02       		.uleb128 0x2
+ 458 00c6 18       		.uleb128 0x18
+ 459 00c7 00       		.byte	0
+ 460 00c8 00       		.byte	0
+ 461 00c9 0E       		.uleb128 0xe
+ 462 00ca 05       		.uleb128 0x5
+ 463 00cb 00       		.byte	0
+ 464 00cc 03       		.uleb128 0x3
+ 465 00cd 0E       		.uleb128 0xe
+ 466 00ce 3A       		.uleb128 0x3a
+ 467 00cf 0B       		.uleb128 0xb
+ 468 00d0 3B       		.uleb128 0x3b
+ 469 00d1 0B       		.uleb128 0xb
+ 470 00d2 49       		.uleb128 0x49
+ 471 00d3 13       		.uleb128 0x13
+ 472 00d4 02       		.uleb128 0x2
+ 473 00d5 17       		.uleb128 0x17
+ 474 00d6 00       		.byte	0
+ 475 00d7 00       		.byte	0
+ 476 00d8 00       		.byte	0
+ 477              		.section	.debug_loc,"",%progbits
+ 478              	.Ldebug_loc0:
+ 479              	.LLST0:
+ 480 0000 00000000 		.4byte	.LVL0
+ 481 0004 04000000 		.4byte	.LVL1
+ 482 0008 0200     		.2byte	0x2
+ 483 000a 30       		.byte	0x30
+ 484 000b 9F       		.byte	0x9f
+ 485 000c 04000000 		.4byte	.LVL1
+ 486 0010 06000000 		.4byte	.LVL2
+ 487 0014 0100     		.2byte	0x1
+ 488 0016 53       		.byte	0x53
+ 489 0017 08000000 		.4byte	.LVL3
+ 490 001b 10000000 		.4byte	.LFE36
+ 491 001f 0100     		.2byte	0x1
+ 492 0021 53       		.byte	0x53
+ 493 0022 00000000 		.4byte	0
+ 494 0026 00000000 		.4byte	0
+ 495              	.LLST1:
+ 496 002a 00000000 		.4byte	.LVL4
+ 497 002e 04000000 		.4byte	.LVL5
+ 498 0032 0100     		.2byte	0x1
+ 499 0034 51       		.byte	0x51
+ 500 0035 04000000 		.4byte	.LVL5
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 12
+
+
+ 501 0039 08000000 		.4byte	.LFE37
+ 502 003d 0400     		.2byte	0x4
+ 503 003f F3       		.byte	0xf3
+ 504 0040 01       		.uleb128 0x1
+ 505 0041 51       		.byte	0x51
+ 506 0042 9F       		.byte	0x9f
+ 507 0043 00000000 		.4byte	0
+ 508 0047 00000000 		.4byte	0
+ 509              		.section	.debug_aranges,"",%progbits
+ 510 0000 24000000 		.4byte	0x24
+ 511 0004 0200     		.2byte	0x2
+ 512 0006 00000000 		.4byte	.Ldebug_info0
+ 513 000a 04       		.byte	0x4
+ 514 000b 00       		.byte	0
+ 515 000c 0000     		.2byte	0
+ 516 000e 0000     		.2byte	0
+ 517 0010 00000000 		.4byte	.LFB36
+ 518 0014 10000000 		.4byte	.LFE36-.LFB36
+ 519 0018 00000000 		.4byte	.LFB37
+ 520 001c 08000000 		.4byte	.LFE37-.LFB37
+ 521 0020 00000000 		.4byte	0
+ 522 0024 00000000 		.4byte	0
+ 523              		.section	.debug_ranges,"",%progbits
+ 524              	.Ldebug_ranges0:
+ 525 0000 00000000 		.4byte	.LFB36
+ 526 0004 10000000 		.4byte	.LFE36
+ 527 0008 00000000 		.4byte	.LFB37
+ 528 000c 08000000 		.4byte	.LFE37
+ 529 0010 00000000 		.4byte	0
+ 530 0014 00000000 		.4byte	0
+ 531              		.section	.debug_line,"",%progbits
+ 532              	.Ldebug_line0:
+ 533 0000 8C000000 		.section	.debug_str,"MS",%progbits,1
+ 533      02005500 
+ 533      00000201 
+ 533      FB0E0D00 
+ 533      01010101 
+ 534              	.LASF20:
+ 535 0000 76616C75 		.ascii	"value\000"
+ 535      6500
+ 536              	.LASF3:
+ 537 0006 73686F72 		.ascii	"short unsigned int\000"
+ 537      7420756E 
+ 537      7369676E 
+ 537      65642069 
+ 537      6E7400
+ 538              	.LASF24:
+ 539 0019 53686F77 		.ascii	"ShowValue\000"
+ 539      56616C75 
+ 539      6500
+ 540              	.LASF13:
+ 541 0023 666C6F61 		.ascii	"float\000"
+ 541      7400
+ 542              	.LASF7:
+ 543 0029 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 543      206C6F6E 
+ 543      6720756E 
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 13
+
+
+ 543      7369676E 
+ 543      65642069 
+ 544              	.LASF25:
+ 545 0040 53657431 		.ascii	"Set16ByPtr\000"
+ 545      36427950 
+ 545      747200
+ 546              	.LASF1:
+ 547 004b 756E7369 		.ascii	"unsigned char\000"
+ 547      676E6564 
+ 547      20636861 
+ 547      7200
+ 548              	.LASF12:
+ 549 0059 696E7431 		.ascii	"int16\000"
+ 549      3600
+ 550              	.LASF5:
+ 551 005f 6C6F6E67 		.ascii	"long unsigned int\000"
+ 551      20756E73 
+ 551      69676E65 
+ 551      6420696E 
+ 551      7400
+ 552              	.LASF23:
+ 553 0071 433A5C55 		.ascii	"C:\\Users\\laser cutter\\Documents\\PSoC Creator\\2"
+ 553      73657273 
+ 553      5C6C6173 
+ 553      65722063 
+ 553      75747465 
+ 554 009f 31343030 		.ascii	"14009.cydsn\\BLETest.cydsn\000"
+ 554      392E6379 
+ 554      64736E5C 
+ 554      424C4554 
+ 554      6573742E 
+ 555              	.LASF22:
+ 556 00b9 64656275 		.ascii	"debug.c\000"
+ 556      672E6300 
+ 557              	.LASF14:
+ 558 00c1 646F7562 		.ascii	"double\000"
+ 558      6C6500
+ 559              	.LASF10:
+ 560 00c8 75696E74 		.ascii	"uint16\000"
+ 560      313600
+ 561              	.LASF11:
+ 562 00cf 75696E74 		.ascii	"uint32\000"
+ 562      333200
+ 563              	.LASF19:
+ 564 00d6 4359424C 		.ascii	"CYBLE_GATT_VALUE_T\000"
+ 564      455F4741 
+ 564      54545F56 
+ 564      414C5545 
+ 564      5F5400
+ 565              	.LASF8:
+ 566 00e9 756E7369 		.ascii	"unsigned int\000"
+ 566      676E6564 
+ 566      20696E74 
+ 566      00
+ 567              	.LASF15:
+ 568 00f6 63686172 		.ascii	"char\000"
+ 568      00
+ARM GAS  C:\Users\LASERC~1\AppData\Local\Temp\ccmZazwi.s 			page 14
+
+
+ 569              	.LASF21:
+ 570 00fb 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 570      43313120 
+ 570      352E342E 
+ 570      31203230 
+ 570      31363036 
+ 571 012e 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m0 -mthumb -g -O"
+ 571      20726576 
+ 571      6973696F 
+ 571      6E203233 
+ 571      37373135 
+ 572 0161 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 572      66756E63 
+ 572      74696F6E 
+ 572      2D736563 
+ 572      74696F6E 
+ 573              	.LASF17:
+ 574 0189 73697A65 		.ascii	"sizetype\000"
+ 574      74797065 
+ 574      00
+ 575              	.LASF6:
+ 576 0192 6C6F6E67 		.ascii	"long long int\000"
+ 576      206C6F6E 
+ 576      6720696E 
+ 576      7400
+ 577              	.LASF2:
+ 578 01a0 73686F72 		.ascii	"short int\000"
+ 578      7420696E 
+ 578      7400
+ 579              	.LASF9:
+ 580 01aa 75696E74 		.ascii	"uint8\000"
+ 580      3800
+ 581              	.LASF4:
+ 582 01b0 6C6F6E67 		.ascii	"long int\000"
+ 582      20696E74 
+ 582      00
+ 583              	.LASF16:
+ 584 01b9 6C6F6E67 		.ascii	"long double\000"
+ 584      20646F75 
+ 584      626C6500 
+ 585              	.LASF0:
+ 586 01c5 7369676E 		.ascii	"signed char\000"
+ 586      65642063 
+ 586      68617200 
+ 587              	.LASF18:
+ 588 01d1 61637475 		.ascii	"actualLen\000"
+ 588      616C4C65 
+ 588      6E00
+ 589              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

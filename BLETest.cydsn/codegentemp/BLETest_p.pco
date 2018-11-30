@@ -1,0 +1,19 @@
+dont_use_io iocell 0 6
+dont_use_io iocell 0 7
+dont_use_location LPCOMP -1 -1 0
+dont_use_location p4lpcompcell -1 -1 0
+set_location "SRSS" m0s8srsscell -1 -1 0
+set_io "\UART_DEB:tx(0)\" iocell 1 5
+set_location "\ADC:cy_psoc4_sar\" p4sarcell -1 -1 0
+set_location "\BLE:cy_m0s8_ble\" p4blecell -1 -1 0
+set_location "ClockGenBlock" m0s8clockgenblockcell -1 -1 0
+set_location "WDT_Interrupt" interrupt -1 -1 8
+set_location "\BLE:bless_isr\" interrupt -1 -1 12
+set_location "Wakeup_Interrupt" interrupt -1 -1 0
+set_location "\ADC:IRQ\" interrupt -1 -1 15
+set_io "\UART_DEB:rx(0)\" iocell 1 4
+set_location "SW2" logicalport -1 -1 0
+set_io "SW2(0)" iocell 0 1
+set_location "ClockBlock" m0s8clockblockcell -1 -1 0
+set_io "Sig_Input(0)" iocell 3 1
+set_location "\UART_DEB:SCB\" m0s8scbcell -1 -1 0

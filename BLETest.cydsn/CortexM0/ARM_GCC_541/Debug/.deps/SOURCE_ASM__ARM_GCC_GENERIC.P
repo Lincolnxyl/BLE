@@ -1,0 +1,8 @@
+C:/Users/laser\ cutter/Documents/PSoC\ Creator/214009.cydsn/BLETest.cydsn/CortexM0/ARM_GCC_541/Debug/CyBootAsmGnu.o : C:/Users/laser\ cutter/Documents/PSoC\ Creator/214009.cydsn/BLETest.cydsn/Generated_Source/PSoC4/CyBootAsmGnu.s C:/Users/laser\ cutter/Documents/PSoC\ Creator/214009.cydsn/BLETest.cydsn/Generated_Source/PSoC4/cydevicegnu_trm.inc C:/Users/laser\ cutter/Documents/PSoC\ Creator/214009.cydsn/BLETest.cydsn/Generated_Source/PSoC4/cyfittergnu.inc 
+
+C:/Users/laser\ cutter/Documents/PSoC\ Creator/214009.cydsn/BLETest.cydsn/Generated_Source/PSoC4/CyBootAsmGnu.s : 
+
+C:/Users/laser\ cutter/Documents/PSoC\ Creator/214009.cydsn/BLETest.cydsn/Generated_Source/PSoC4/cydevicegnu_trm.inc : 
+
+C:/Users/laser\ cutter/Documents/PSoC\ Creator/214009.cydsn/BLETest.cydsn/Generated_Source/PSoC4/cyfittergnu.inc : 
+

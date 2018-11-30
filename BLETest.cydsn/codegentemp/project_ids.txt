@@ -1,0 +1,12 @@
+C:\Users\laser cutter\Documents\PSoC Creator\214009.cydsn\214009.cyprj|7ac2e2e3-cf72-45d6-b108-8f009d83b45b
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|6288d5ba-16d2-4762-8be9-749b07310772
+C:\Users\laser cutter\Documents\PSoC Creator\4.2\Downloads ( 4.2).cylib\Downloads ( 4.2).cyprj|ac76921f-b608-4411-85b0-133236e0c8fc
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|c32819f2-ad75-428e-abc3-8a50a9b86daa
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|e4702d0d-d77b-4476-a99d-ad4b8d469ba4
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|d44ac692-fceb-4e1a-98ba-0750ad019a61
+C:\Users\laser cutter\Documents\PSoC Creator\214009.cydsn\BLETest.cydsn\BLETest.cyprj|ba6ad891-79ee-48f6-87f6-d730482db109
+C:\Users\laser cutter\Documents\PSoC Creator\BLE_Temperature_Measurement01.cydsn\BLE_Temperature_Measurement01.cyprj|edd7fcb9-7d5d-4f5a-af70-954401781226
+C:\Users\laser cutter\Documents\PSoC Creator\TCPWM_P4_Periodic_Interrupt01.cydsn\TCPWM_P4_Periodic_Interrupt01.cyprj|1f43d59b-6db5-4963-b82c-21cffc83571a
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\default\CyReferenceLibrary\CyReferenceLibrary.cylib\CyReferenceLibrary.cyprj|05df25fe-3fe8-41cb-94c8-67b4b233722c
+C:\Users\laser cutter\Documents\PSoC Creator\BLE_Temperature_Measurement02.cydsn\BLE_Temperature_Measurement02.cyprj|7aa174cc-92dc-4746-ba69-ba32d98a408d
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\dev\psoc4\PSoC4AnalogDevice\psoc4arch.cydsn\psoc4arch.cyprj|5b00a932-dc34-4122-92bc-4ef814f4b2b3
